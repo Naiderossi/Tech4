@@ -203,8 +203,7 @@ with col_fam1:
         bordercolor="red"
     )
     st.plotly_chart(fig_fam, use_container_width=True)
-with col_fam2:
-    st.markdown("### 💡")
+    with st.expander("💡 Ver insight"):
     st.markdown("<div style='font-size:15px; font-weight:bold'>Indivíduos com histórico familiar têm maior incidência de obesidade grave.</div>", unsafe_allow_html=True)
 
 
