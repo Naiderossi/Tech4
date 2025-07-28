@@ -86,7 +86,7 @@ st.markdown("## ⚖️ IMC Médio por Idade")
 col4, col5 = st.columns([2, 1])
 with col4:
 
-    imc_idade = df.groupby("Idade")["imc"].mean().reset_index()
+    imc_idade = df.groupby("age")["imc"].mean().reset_index()
     fig_imc = px.line(imc_idade, x="age", y="imc", title="IMC Médio por Idade")
     pico_imc = imc_idade.loc[imc_idade["imc"].idxmax()]
     fig_imc.add_annotation(
