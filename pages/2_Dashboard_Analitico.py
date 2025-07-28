@@ -12,7 +12,6 @@ st.set_page_config(page_title="Painel de Obesidade - Final", layout="wide")
 
 # Carregar dados
 df = pd.read_csv("Obesity_tratado.csv")
-from dicionario_variaveis import dicionario_variaveis
 
 # Aplicar renomeações nas colunas para tornar nomes mais intuitivos
 df["imc"] = df["weight"] / (df["height"] ** 2)
