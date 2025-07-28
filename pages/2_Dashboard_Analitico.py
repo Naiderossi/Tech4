@@ -58,7 +58,7 @@ st.markdown("### 📊 Distribuição de Obesidade")
 cols = st.columns(len(obesity_pct))
 for col, (_, row) in zip(cols, obesity_pct.iterrows()):
     col.metric(row["obesidade_pt"], f"{row['percentual']}%")
-
+st.markdown("------")
 # IMC por idade com insight
 st.markdown("## ⚖️ IMC Médio por Idade")
 col4, col5 = st.columns([2, 1])
