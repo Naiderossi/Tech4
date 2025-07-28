@@ -204,8 +204,7 @@ with col_fam1:
     )
 st.plotly_chart(fig_fam, use_container_width=True)
 with st.expander("💡 Ver insight"):
-st.markdown("Indivíduos com histórico familiar têm maior incidência de obesidade grave.")
-
+      st.markdown("Indivíduos com histórico familiar têm maior incidência de obesidade grave.")
 
 # 🔗 Correlação entre Fatores de Saúde e Comportamento
 st.markdown("## 🧪 Correlação entre Fatores")
