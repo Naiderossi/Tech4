@@ -1,0 +1,16 @@
+# Ambiente virtual
+.venv/
+env/
+venv/
+
+# Arquivos de cache
+__pycache__/
+*.pyc
+
+# Arquivos do Streamlit
+.streamlit/config.toml
+
+# Dados temporários
+*.csv~
+*.xlsx~
+*.html
