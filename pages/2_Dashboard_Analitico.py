@@ -170,10 +170,10 @@ with col14:
         st.markdown("Faixas de 19 a 50 anos concentram a maior parte dos casos.")
 
 
-
 # Histórico Familiar vs Obesidade
 st.markdown("## 🧬 Obesidade por Histórico Familiar")
 col_fam1, col_fam2 = st.columns([2.2, 1])
+
 with col_fam1:
     hist_fam = df.groupby(["family_history", "obesity"]).size().reset_index(name="quantidade")
     hist_fam["family_history_pt"] = hist_fam["family_history"].map({"yes": "Sim", "no": "Não"})
@@ -186,34 +186,35 @@ with col_fam1:
         "Obesity_Type_II": "Obesidade II",
         "Obesity_Type_III": "Obesidade III"
     })
-fig_fam = px.bar(
-    hist_fam,
-    x="family_history_pt",
-    y="quantidade",
-    color="obesidade_pt",
-    barmode="group",
-    color_discrete_map={
-        "Peso Insuficiente": "#4C78A8",
-        "Peso Normal": "#A1CDEC",
-        "Obesidade I": "#E45756",
-        "Obesidade II": "#FFB5B8",
-        "Obesidade III": "#FFA500",
-        "Sobrepeso I": "#72B7B2",
-        "Sobrepeso II": "#C2E7E5"
-    },
-    text="quantidade",
-    title="Distribuição de Obesidade por Histórico Familiar"
-)
-fig_fam.update_layout(
-    xaxis_title="Histórico Familiar",
-    yaxis_title="Quantidade",
-    legend_title="Nível de Obesidade",
-    font=dict(size=14),
-    plot_bgcolor="#fafafa"
-)
-fig_fam.update_traces(textposition="outside")
-fig_fam = px.bar(hist_fam, x="family_history_pt", y="quantidade", color="obesidade_pt", barmode="group",
-                     title="Obesidade por Histórico Familiar")
+
+    fig_fam = px.bar(
+        hist_fam,
+        x="family_history_pt",
+        y="quantidade",
+        color="obesidade_pt",
+        barmode="group",
+        color_discrete_map={
+            "Peso Insuficiente": "#4C78A8",
+            "Peso Normal": "#A1CDEC",
+            "Obesidade I": "#E45756",
+            "Obesidade II": "#FFB5B8",
+            "Obesidade III": "#FFA500",
+            "Sobrepeso I": "#72B7B2",
+            "Sobrepeso II": "#C2E7E5"
+        },
+        text="quantidade",
+        title="Distribuição de Obesidade por Histórico Familiar"
+    )
+
+    fig_fam.update_layout(
+        xaxis_title="Histórico Familiar",
+        yaxis_title="Quantidade",
+        legend_title="Nível de Obesidade",
+        font=dict(size=14),
+        plot_bgcolor="#fafafa"
+    )
+    fig_fam.update_traces(textposition="outside")
+
     grupo_pico = hist_fam.loc[hist_fam["quantidade"].idxmax()]
     fig_fam.add_annotation(
         x=grupo_pico["family_history_pt"],
@@ -226,9 +227,13 @@ fig_fam = px.bar(hist_fam, x="family_history_pt", y="quantidade", color="obesida
         bgcolor="white",
         bordercolor="red"
     )
-st.plotly_chart(fig_fam, use_container_width=True)
-with st.expander("💡 Ver insight"):
-      st.markdown("Indivíduos com histórico familiar têm maior incidência de obesidade grave.")
+
+    st.plotly_chart(fig_fam, use_container_width=True)
+
+with col_fam2:
+    with st.expander("💡 Ver insight"):
+        st.markdown("Indivíduos com histórico familiar têm maior incidência de obesidade grave.")
+
 
 # 🔗 Correlação entre Fatores de Saúde e Comportamento
 st.markdown("## 🧪 Correlação entre Fatores")
