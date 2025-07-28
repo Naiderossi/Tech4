@@ -19,8 +19,7 @@ df["imc"] = df["weight"] / (df["height"] ** 2)
 df["sedentario"] = df["faf"] == 0
 df_renomeado = df.rename(columns=dicionario_variaveis)
 df.columns = df.columns.str.lower()
-df_renomeado["imc"] = df_renomeado["weight"] / (df_renomeado["height"] ** 2)
-df_renomeado["sedentario"] = df_renomeado["faf"] == 0
+
 
 bins = [0, 13, 18, 25, 35, 50, 100]
 labels = ['Crianças', 'Adolescentes', '19-25', '26-35', '36-50', '51+']
