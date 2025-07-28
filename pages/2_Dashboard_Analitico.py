@@ -57,7 +57,7 @@ st.markdown("------")
 st.markdown("## 🍩 Distribuição Percentual de Obesidade")
 
 fig_donut = px.pie(
-    df_pct,
+   obesity_pct ,
     names="obesidade_pt",
     values="percentual",
     hole=0.5,
@@ -69,7 +69,7 @@ fig_donut = px.pie(
 fig_donut.update_traces(
     textinfo='percent+label',
     textposition='outside',
-    pull=[0.03 if i == df_pct["percentual"].idxmax() else 0 for i in range(len(df_pct))]
+    pull=[0.03 if i == obesity_pct["percentual"].idxmax() else 0 for i in range(len(df_pct))]
 )
 
 fig_donut.update_layout(
