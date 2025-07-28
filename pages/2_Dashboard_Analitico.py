@@ -31,10 +31,10 @@ with st.sidebar:
     transporte = st.multiselect("Transporte", df["mtrans"].unique(), default=list(df["mtrans"].unique()))
     idade = st.slider("Idade", int(df["age"].min()), int(df["age"].max()), (int(df["age"].min()), int(df["age"].max())))
 
-df_filt = df_renomeado[
-    (df_renomeado["gender"].isin(genero)) &
-    (df_renomeado["mtrans"].isin(transporte)) &
-    (df_renomeado["age"].between(idade[0], idade[1]))
+df_filt = df[
+    (df["gender"].isin(genero)) &
+    (df["mtrans"].isin(transporte)) &
+    (df["age"].between(idade[0], idade[1]))
 ]
 
 # KPIs
