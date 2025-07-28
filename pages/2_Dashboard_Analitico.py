@@ -238,7 +238,7 @@ fig_corr.update_layout(
 st.plotly_chart(fig_corr, use_container_width=True)
 
 with st.expander("💡 Ver insight"):
-st.markdown("Pessoas mais altas tendem a pesar mais | Exercício físico se relaciona com maior consumo de água.|Idade está ligada à redução do tempo em tecnologia. |Obesidade é multifatorial:combinação de hábitos importa mais que um único fator.")
+      st.markdown("Pessoas mais altas tendem a pesar mais | Exercício físico se relaciona com maior consumo de água.|Idade está ligada à redução do tempo em tecnologia. |Obesidade é multifatorial:combinação de hábitos importa mais que um único fator.")
 
 
 # Tabela final
