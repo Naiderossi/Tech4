@@ -74,6 +74,34 @@ with col5:
     st.markdown("### 💡")
     st.markdown("<div style='font-size:16px; font-weight:bold'>O IMC médio aumenta até cerca de 25 anos.<br>Após os 30, tende a estabilizar.</div>", unsafe_allow_html=True)
 
+# Histórico Familiar vs Obesidade
+st.markdown("## 🧬 Obesidade por Histórico Familiar")
+col_fam1, col_fam2 = st.columns([2.2, 1])
+with col_fam1:
+    hist_fam = df.groupby(["family_history", "obesity"]).size().reset_index(name="quantidade")
+    hist_fam["family_history_pt"] = hist_fam["family_history"].map({"yes": "Sim", "no": "Não"})
+    hist_fam["obesidade_pt"] = hist_fam["obesity"].map(translate_obesity)
+
+    fig_fam = px.bar(hist_fam, x="family_history_pt", y="quantidade", color="obesidade_pt", barmode="group",
+                     title="Obesidade por Histórico Familiar")
+
+    grupo_pico = hist_fam.loc[hist_fam["quantidade"].idxmax()]
+    fig_fam.add_annotation(
+        x=grupo_pico["family_history_pt"],
+        y=grupo_pico["quantidade"],
+        text="📌 Maior ocorrência",
+        showarrow=True,
+        arrowhead=2,
+        ay=-40,
+        font=dict(size=11, color="red"),
+        bgcolor="white",
+        bordercolor="red"
+    )
+    st.plotly_chart(fig_fam, use_container_width=True)
+with col_fam2:
+    st.markdown("### 💡")
+    st.markdown("<div style='font-size:15px; font-weight:bold'>Indivíduos com histórico familiar têm maior incidência de obesidade grave.</div>", unsafe_allow_html=True)
+
 # Alimentação
 st.markdown("## 🍽️ Alimentação e Hidratação por Obesidade")
 col6, col7 = st.columns([2, 1])
