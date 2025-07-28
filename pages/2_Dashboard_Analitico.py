@@ -213,8 +213,7 @@ st.markdown("## 🧪 Correlação entre Fatores")
 
 col_corr1, col_corr2 = st.columns([2, 1])
 with col_corr1:
-  
-rename_cols = {
+  rename_cols = {
     "age": "Idade",
     "height": "Altura (m)",
     "weight": "Peso (kg)",
@@ -238,8 +237,8 @@ fig_corr.update_layout(
     margin=dict(l=0, r=0, t=50, b=0),
     coloraxis_colorbar=dict(title="Correlação")
 )
-
 st.plotly_chart(fig_corr, use_container_width=True)
+
 with col_corr2:
     st.markdown("### 💡")
     st.markdown("""
