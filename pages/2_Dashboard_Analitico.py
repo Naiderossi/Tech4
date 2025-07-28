@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import math
 
 st.set_page_config(page_title="Painel de Obesidade - Final", layout="wide")
 
@@ -50,9 +51,17 @@ obesity_pct.columns = ["obesidade", "percentual"]
 obesity_pct["obesidade_pt"] = obesity_pct["obesidade"].map(translate_obesity)
 
 st.markdown("### 📊 Distribuição de Obesidade")
-cols = st.columns(len(obesity_pct))
-for col, (_, row) in zip(cols, obesity_pct.iterrows()):
-    col.metric(row["obesidade_pt"], f"{row['percentual']}%")
+n = len(obesity_pct)
+cols_per_row = 4
+rows = math.ceil(n / cols_per_row)
+
+for i in range(rows):
+    cols = st.columns(cols_per_row)
+    for j in range(cols_per_row):
+        idx = i * cols_per_row + j
+        if idx < n:
+            row = obesity_pct.iloc[idx]
+            cols[j].metric(label=row["obesidade_pt"], value=f"{row['percentual']}%")
 
 # IMC por idade com insight
 st.markdown("## ⚖️ IMC Médio por Idade")
