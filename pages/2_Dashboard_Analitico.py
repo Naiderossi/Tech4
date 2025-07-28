@@ -12,23 +12,24 @@ st.set_page_config(page_title="Painel de Obesidade - Final", layout="wide")
 
 # Carregar dados
 df = pd.read_csv("Obesity_tratado.csv")
-df.columns = df.columns.str.lower()
-df["imc"] = df["weight"] / (df["height"] ** 2)
-df["sedentario"] = df["faf"] == 0
-bins = [0, 13, 18, 25, 35, 50, 100]
-labels = ['Crianças', 'Adolescentes', '19-25', '26-35', '36-50', '51+']
-df["faixa_personalizada"] = pd.cut(df["age"], bins=bins, labels=labels, right=False)
-
+from dicionario_variaveis import dicionario_variaveis
 
 # Aplicar renomeações nas colunas para tornar nomes mais intuitivos
 df_renomeado = df.rename(columns=dicionario_variaveis)
+df.columns = df.columns.str.lower()
+df_renomeado["imc"] = df_renomeado["weight"] / (df_renomeado["height"] ** 2)
+df_renomeado["sedentario"] = df_renomeado["faf"] == 0
+
+bins = [0, 13, 18, 25, 35, 50, 100]
+labels = ['Crianças', 'Adolescentes', '19-25', '26-35', '36-50', '51+']
+df_renomeado["faixa_personalizada"] = pd.cut(df_renomeado["age"], bins=bins, labels=labels, right=False)
 
 # Sidebar
 with st.sidebar:
     st.title("Painel de Controle")
-     genero = st.multiselect("Gênero", df["gender"].unique(), default=list(df["gender"].unique()))
-    transporte = st.multiselect("Transporte", df["mtrans"].unique(), default=list(df["mtrans"].unique()))
-    idade = st.slider("Idade", int(df["age"].min()), int(df["age"].max()), (int(df["age"].min()), int(df["age"].max())))
+    genero = st.multiselect("Gênero", df_renomeado["gender"].unique(), default=list(df_renomeado["gender"].unique()))
+    transporte = st.multiselect("Transporte", df_renomeado["mtrans"].unique(), default=list(df_renomeado["mtrans"].unique()))
+    idade = st.slider("Idade", int(df_renomeado["age"].min()), int(df_renomeado["age"].max()), (int(df_renomeado["age"].min()), int(df_renomeado["age"].max())))
 
 df_filt = df_renomeado[
     (df_renomeado["gender"].isin(genero)) &
@@ -210,4 +211,3 @@ with col_corr2:
 # Tabela final
 st.markdown("## 📋 Tabela de Dados Filtrados")
 st.dataframe(df_filt)
-
