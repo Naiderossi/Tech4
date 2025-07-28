@@ -69,7 +69,7 @@ fig_donut = px.pie(
 fig_donut.update_traces(
     textinfo='percent+label',
     textposition='outside',
-    pull=[0.03 if i == obesity_pct["percentual"].idxmax() else 0 for i in range(len(df_pct))]
+    pull=[0.03 if i == obesity_pct["percentual"].idxmax() else 0 for i in range(len(obesity_pct))]
 )
 
 fig_donut.update_layout(
