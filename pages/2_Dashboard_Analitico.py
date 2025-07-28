@@ -15,6 +15,8 @@ df = pd.read_csv("Obesity_tratado.csv")
 from dicionario_variaveis import dicionario_variaveis
 
 # Aplicar renomeações nas colunas para tornar nomes mais intuitivos
+df["imc"] = df["weight"] / (df["height"] ** 2)
+df["sedentario"] = df["faf"] == 0
 df_renomeado = df.rename(columns=dicionario_variaveis)
 df.columns = df.columns.str.lower()
 df_renomeado["imc"] = df_renomeado["weight"] / (df_renomeado["height"] ** 2)
@@ -27,9 +29,9 @@ df_renomeado["faixa_personalizada"] = pd.cut(df_renomeado["age"], bins=bins, lab
 # Sidebar
 with st.sidebar:
     st.title("Painel de Controle")
-    genero = st.multiselect("Gênero", df_renomeado["gender"].unique(), default=list(df_renomeado["gender"].unique()))
-    transporte = st.multiselect("Transporte", df_renomeado["mtrans"].unique(), default=list(df_renomeado["mtrans"].unique()))
-    idade = st.slider("Idade", int(df_renomeado["age"].min()), int(df_renomeado["age"].max()), (int(df_renomeado["age"].min()), int(df_renomeado["age"].max())))
+    genero = st.multiselect("Gênero", df["gender"].unique(), default=list(df["gender"].unique()))
+    transporte = st.multiselect("Transporte", df["mtrans"].unique(), default=list(df["mtrans"].unique()))
+    idade = st.slider("Idade", int(df["age"].min()), int(df["age"].max()), (int(df["age"].min()), int(df["age"].max())))
 
 df_filt = df_renomeado[
     (df_renomeado["gender"].isin(genero)) &
@@ -41,8 +43,8 @@ df_filt = df_renomeado[
 st.markdown("## 🩺 Indicadores Gerais")
 col1, col2, col3 = st.columns(3)
 col1.metric("👥 Total de Entrevistados", len(df_filt))
-col2.metric("🧔 Homens", int((df_filt["gender"] == "Male").sum()))
-col3.metric("👩 Mulheres", int((df_filt["gender"] == "Female").sum()))
+col2.metric("🧔 Homens", int((df_filt_renomeado["gender"] == "Male").sum()))
+col3.metric("👩 Mulheres", int((df_filt_renomeado["gender"] == "Female").sum()))
 
 # Distribuição em cards traduzidos
 translate_obesity = {
@@ -54,7 +56,7 @@ translate_obesity = {
     "Obesity_Type_II": "Obesidade II",
     "Obesity_Type_III": "Obesidade III"
 }
-obesity_pct = df_filt["obesity"].value_counts(normalize=True).mul(100).round(2).reset_index()
+obesity_pct = df_filt_renomeado["obesity"].value_counts(normalize=True).mul(100).round(2).reset_index()
 obesity_pct.columns = ["obesidade", "percentual"]
 obesity_pct["obesidade_pt"] = obesity_pct["obesidade"].map(translate_obesity)
 
@@ -68,7 +70,7 @@ st.markdown("## ⚖️ IMC Médio por Idade")
 col4, col5 = st.columns([2, 1])
 with col4:
 
-    imc_idade = df_filt.groupby("age")["imc"].mean().reset_index()
+    imc_idade = df_filt_renomeado.groupby("age")["imc"].mean().reset_index()
     fig_imc = px.line(imc_idade, x="age", y="imc", title="IMC Médio por Idade")
     pico_imc = imc_idade.loc[imc_idade["imc"].idxmax()]
     fig_imc.add_annotation(
@@ -86,7 +88,7 @@ with col4:
 st.markdown("## 🍽️ Alimentação e Hidratação por Obesidade")
 col6, col7 = st.columns([2, 1])
 with col6:
-    alim = df_filt.groupby("obesity")[["ncp", "ch2o"]].mean().reset_index()
+    alim = df_filt_renomeado.groupby("obesity")[["ncp", "ch2o"]].mean().reset_index()
     fig_alim = px.bar(alim, x="obesity", y=["ncp", "ch2o"], barmode="group")
     st.plotly_chart(fig_alim, use_container_width=True)
     with st.expander("💡 Ver insight"):
@@ -96,7 +98,7 @@ with col6:
 st.markdown("## 🏃 Atividade Física por Obesidade")
 col8, col9 = st.columns([2, 1])
 with col8:
-    atividade = df_filt.groupby("obesity")["faf"].mean().reset_index()
+    atividade = df_filt_renomeado.groupby("obesity")["faf"].mean().reset_index()
     fig_faf = px.bar(atividade, x="obesity", y="faf", color="obesity")
     st.plotly_chart(fig_faf, use_container_width=True)
     with st.expander("💡 Ver insight"):
@@ -106,7 +108,7 @@ with col8:
 st.markdown("## 🛋️ Sedentarismo por Obesidade")
 col10, col11 = st.columns([2, 1])
 with col10:
-    sedentarismo = df_filt.groupby(["obesity", "sedentario"]).size().reset_index(name="quantidade")
+    sedentarismo = df_filt_renomeado.groupby(["obesity", "sedentario"]).size().reset_index(name="quantidade")
     fig_sed = px.bar(sedentarismo, x="obesity", y="quantidade", color="sedentario", barmode="group")
     st.plotly_chart(fig_sed, use_container_width=True)
     with st.expander("💡 Ver insight"):
@@ -116,7 +118,7 @@ with col10:
 st.markdown("## 🚬 Fumantes por Obesidade")
 col12, col13 = st.columns([2, 1])
 with col12:
-    fumantes = df_filt.groupby(["obesity", "smoke"]).size().reset_index(name="quantidade")
+    fumantes = df_filt_renomeado.groupby(["obesity", "smoke"]).size().reset_index(name="quantidade")
     fig_smoke = px.bar(fumantes, x="obesity", y="quantidade", color="smoke", barmode="group")
     st.plotly_chart(fig_smoke, use_container_width=True)
     with st.expander("💡 Ver insight"):
@@ -211,3 +213,6 @@ with col_corr2:
 # Tabela final
 st.markdown("## 📋 Tabela de Dados Filtrados")
 st.dataframe(df_filt)
+
+
+df_filt_renomeado = df_filt.rename(columns=dicionario_variaveis)
