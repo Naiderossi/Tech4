@@ -73,7 +73,9 @@ with col4:
         showarrow=True, arrowhead=2, ay=-40,
         font=dict(size=11, color="red"), bgcolor="white", bordercolor="red"
     )
-
+    fig_imc.update_layout(
+    margin=dict(l=0, r=0, t=50, b=0),
+    coloraxis_colorbar=dict(title="imc medio")
     st.plotly_chart(fig_imc, use_container_width=True)
     with st.expander("💡 Ver insight"):
         st.markdown("O IMC médio aumenta até cerca de 25 anos.Após os 30, tende a estabilizar.")
