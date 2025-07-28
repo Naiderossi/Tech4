@@ -54,10 +54,31 @@ obesity_pct.columns = ["obesidade", "percentual"]
 obesity_pct["obesidade_pt"] = obesity_pct["obesidade"].map(translate_obesity)
 
 st.markdown("------")
-st.markdown("### 📊 Distribuição de Obesidade")
-cols = st.columns(len(obesity_pct))
-for col, (_, row) in zip(cols, obesity_pct.iterrows()):
-    col.metric(row["obesidade_pt"], f"{row['percentual']}%")
+st.markdown("## 🍩 Distribuição Percentual de Obesidade")
+
+fig_donut = px.pie(
+    df_pct,
+    names="obesidade_pt",
+    values="percentual",
+    hole=0.5,
+    color="obesidade_pt",
+    color_discrete_sequence=px.colors.qualitative.Set2,
+    title="Proporção de Níveis de Obesidade"
+)
+
+fig_donut.update_traces(
+    textinfo='percent+label',
+    textposition='outside',
+    pull=[0.03 if i == df_pct["percentual"].idxmax() else 0 for i in range(len(df_pct))]
+)
+
+fig_donut.update_layout(
+    showlegend=True,
+    margin=dict(l=20, r=20, t=50, b=20)
+)
+
+st.plotly_chart(fig_donut, use_container_width=True)
+
 st.markdown("------")
 # IMC por idade com insight
 st.markdown("## ⚖️ IMC Médio por Idade")
