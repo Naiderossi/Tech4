@@ -38,6 +38,8 @@ col1.metric("👥 Total de Entrevistados", len(df_filt))
 col2.metric("🧔 Homens", int((df_filt["gender"] == "Male").sum()))
 col3.metric("👩 Mulheres", int((df_filt["gender"] == "Female").sum()))
 
+st.markdown("---")
+
 # Distribuição em cards traduzidos
 translate_obesity = {
     "Insufficient_Weight": "Peso Insuficiente",
@@ -65,7 +67,8 @@ for i in range(rows):
             row = obesity_pct.iloc[idx]
             cols[j].metric(label=row["obesidade_pt"], value=f"{row['percentual']}%")
 
-# IMC por idade com insight
+st.markdown("---")
+# IMC por idade 
 st.markdown("## ⚖️ IMC Médio por Idade")
 col4, col5 = st.columns([2, 1])
 with col4:
