@@ -17,13 +17,12 @@ from dicionario_variaveis import dicionario_variaveis
 # Aplicar renomeações nas colunas para tornar nomes mais intuitivos
 df["imc"] = df["weight"] / (df["height"] ** 2)
 df["sedentario"] = df["faf"] == 0
+bins = [0, 13, 18, 25, 35, 50, 100]
+labels = ['Crianças', 'Adolescentes', '19-25', '26-35', '36-50', '51+']
+df["faixa_personalizada"] = pd.cut(df["age"], bins=bins, labels=labels, right=False)
 df_renomeado = df.rename(columns=dicionario_variaveis)
 df.columns = df.columns.str.lower()
 
-
-bins = [0, 13, 18, 25, 35, 50, 100]
-labels = ['Crianças', 'Adolescentes', '19-25', '26-35', '36-50', '51+']
-df_renomeado["faixa_personalizada"] = pd.cut(df_renomeado["age"], bins=bins, labels=labels, right=False)
 
 # Sidebar
 with st.sidebar:
