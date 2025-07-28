@@ -61,7 +61,7 @@ for col, (_, row) in zip(cols, obesity_pct.iterrows()):
 st.markdown("------")
 # IMC por idade com insight
 st.markdown("## ⚖️ IMC Médio por Idade")
-#col4, col5 = st.columns([2, 1])
+col4, col5 = st.columns([2, 1])
 with col4:
 
     imc_idade = df.groupby("age")["imc"].mean().reset_index()
