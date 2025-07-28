@@ -6,29 +6,6 @@ import plotly.graph_objects as go
 import seaborn as sns
 import math
 
-dicionario_variaveis = {
-  "gender": "Gênero",
-  "age": "Idade",
-  "height": "Altura (m)",
-  "weight": "Peso (kg)",
-  "family_history": "Histórico Familiar de Obesidade",
-  "favc": "Consumo Frequente de Alimentos Calóricos",
-  "fcvc": "Consumo de Vegetais",
-  "ncp": "Número de Refeições por Dia",
-  "caec": "Petiscos entre Refeições",
-  "smoke": "Fumante",
-  "ch2o": "Consumo de Água (litros/dia)",
-  "scc": "Controle de Calorias",
-  "faf": "Atividade Física (frequência)",
-  "tue": "Tempo em Tela (TV, celular, computador)",
-  "calc": "Consumo de Álcool",
-  "mtrans": "Meio de Transporte",
-  "obesity": "Nível de Obesidade",
-  "imc": "Índice de Massa Corporal",
-  "sedentario": "Sedentário",
-  "faixa_personalizada": "Faixa Etária Personalizada"
-}
-
 st.set_page_config(page_title="Painel de Obesidade - Final", layout="wide")
 
 # Carregar dados
@@ -76,6 +53,7 @@ obesity_pct = df["obesity"].value_counts(normalize=True).mul(100).round(2).reset
 obesity_pct.columns = ["obesidade", "percentual"]
 obesity_pct["obesidade_pt"] = obesity_pct["obesidade"].map(translate_obesity)
 
+st.markdown("------")
 st.markdown("### 📊 Distribuição de Obesidade")
 cols = st.columns(len(obesity_pct))
 for col, (_, row) in zip(cols, obesity_pct.iterrows()):
