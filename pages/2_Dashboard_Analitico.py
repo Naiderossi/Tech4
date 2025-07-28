@@ -10,25 +10,29 @@ st.set_page_config(page_title="Painel de Obesidade - Final", layout="wide")
 
 # Carregar dados
 df = pd.read_csv("Obesity_tratado.csv")
+from dicionario_variaveis import dicionario_variaveis
+
+# Aplicar renomeações nas colunas para tornar nomes mais intuitivos
+df_renomeado = df.rename(columns=dicionario_variaveis)
 df.columns = df.columns.str.lower()
-df["imc"] = df["weight"] / (df["height"] ** 2)
-df["sedentario"] = df["faf"] == 0
+df_renomeado["imc"] = df_renomeado["weight"] / (df_renomeado["height"] ** 2)
+df_renomeado["sedentario"] = df_renomeado["faf"] == 0
 
 bins = [0, 13, 18, 25, 35, 50, 100]
 labels = ['Crianças', 'Adolescentes', '19-25', '26-35', '36-50', '51+']
-df["faixa_personalizada"] = pd.cut(df["age"], bins=bins, labels=labels, right=False)
+df_renomeado["faixa_personalizada"] = pd.cut(df_renomeado["age"], bins=bins, labels=labels, right=False)
 
 # Sidebar
 with st.sidebar:
     st.title("Painel de Controle")
-    genero = st.multiselect("Gênero", df["gender"].unique(), default=list(df["gender"].unique()))
-    transporte = st.multiselect("Transporte", df["mtrans"].unique(), default=list(df["mtrans"].unique()))
-    idade = st.slider("Idade", int(df["age"].min()), int(df["age"].max()), (int(df["age"].min()), int(df["age"].max())))
+    genero = st.multiselect("Gênero", df_renomeado["gender"].unique(), default=list(df_renomeado["gender"].unique()))
+    transporte = st.multiselect("Transporte", df_renomeado["mtrans"].unique(), default=list(df_renomeado["mtrans"].unique()))
+    idade = st.slider("Idade", int(df_renomeado["age"].min()), int(df_renomeado["age"].max()), (int(df_renomeado["age"].min()), int(df_renomeado["age"].max())))
 
-df_filt = df[
-    (df["gender"].isin(genero)) &
-    (df["mtrans"].isin(transporte)) &
-    (df["age"].between(idade[0], idade[1]))
+df_filt = df_renomeado[
+    (df_renomeado["gender"].isin(genero)) &
+    (df_renomeado["mtrans"].isin(transporte)) &
+    (df_renomeado["age"].between(idade[0], idade[1]))
 ]
 
 # KPIs
@@ -37,8 +41,6 @@ col1, col2, col3 = st.columns(3)
 col1.metric("👥 Total de Entrevistados", len(df_filt))
 col2.metric("🧔 Homens", int((df_filt["gender"] == "Male").sum()))
 col3.metric("👩 Mulheres", int((df_filt["gender"] == "Female").sum()))
-
-st.markdown("---")
 
 # Distribuição em cards traduzidos
 translate_obesity = {
@@ -55,20 +57,11 @@ obesity_pct.columns = ["obesidade", "percentual"]
 obesity_pct["obesidade_pt"] = obesity_pct["obesidade"].map(translate_obesity)
 
 st.markdown("### 📊 Distribuição de Obesidade")
-n = len(obesity_pct)
-cols_per_row = 4
-rows = math.ceil(n / cols_per_row)
+cols = st.columns(len(obesity_pct))
+for col, (_, row) in zip(cols, obesity_pct.iterrows()):
+    col.metric(row["obesidade_pt"], f"{row['percentual']}%")
 
-for i in range(rows):
-    cols = st.columns(cols_per_row)
-    for j in range(cols_per_row):
-        idx = i * cols_per_row + j
-        if idx < n:
-            row = obesity_pct.iloc[idx]
-            cols[j].metric(label=row["obesidade_pt"], value=f"{row['percentual']}%")
-
-st.markdown("---")
-# IMC por idade 
+# IMC por idade com insight
 st.markdown("## ⚖️ IMC Médio por Idade")
 col4, col5 = st.columns([2, 1])
 with col4:
@@ -84,17 +77,95 @@ with col4:
     )
 
     st.plotly_chart(fig_imc, use_container_width=True)
-with col5:
-    st.markdown("### 💡")
-    st.markdown("<div style='font-size:16px; font-weight:bold'>O IMC médio aumenta até cerca de 25 anos.<br>Após os 30, tende a estabilizar.</div>", unsafe_allow_html=True)
+    with st.expander("💡 Ver insight"):
+        st.markdown("O IMC médio aumenta até cerca de 25 anos.Após os 30, tende a estabilizar.")
+
+# Alimentação
+st.markdown("## 🍽️ Alimentação e Hidratação por Obesidade")
+col6, col7 = st.columns([2, 1])
+with col6:
+    alim = df_filt.groupby("obesity")[["ncp", "ch2o"]].mean().reset_index()
+    fig_alim = px.bar(alim, x="obesity", y=["ncp", "ch2o"], barmode="group")
+    st.plotly_chart(fig_alim, use_container_width=True)
+    with st.expander("💡 Ver insight"):
+        st.markdown("Pessoas com peso normal fazem mais refeições e bebem mais água.Reflete hábitos saudáveis.")
+
+# Atividade física por obesidade
+st.markdown("## 🏃 Atividade Física por Obesidade")
+col8, col9 = st.columns([2, 1])
+with col8:
+    atividade = df_filt.groupby("obesity")["faf"].mean().reset_index()
+    fig_faf = px.bar(atividade, x="obesity", y="faf", color="obesity")
+    st.plotly_chart(fig_faf, use_container_width=True)
+    with st.expander("💡 Ver insight"):
+        st.markdown("Pessoas obesas são menos ativas fisicamente.Reflete relação inversa entre exercício e obesidade.")
+
+# Sedentarismo
+st.markdown("## 🛋️ Sedentarismo por Obesidade")
+col10, col11 = st.columns([2, 1])
+with col10:
+    sedentarismo = df_filt.groupby(["obesity", "sedentario"]).size().reset_index(name="quantidade")
+    fig_sed = px.bar(sedentarismo, x="obesity", y="quantidade", color="sedentario", barmode="group")
+    st.plotly_chart(fig_sed, use_container_width=True)
+    with st.expander("💡 Ver insight"):
+        st.markdown("Obesidade tipo I e II concentram maior sedentarismo.")
+
+# Fumantes
+st.markdown("## 🚬 Fumantes por Obesidade")
+col12, col13 = st.columns([2, 1])
+with col12:
+    fumantes = df_filt.groupby(["obesity", "smoke"]).size().reset_index(name="quantidade")
+    fig_smoke = px.bar(fumantes, x="obesity", y="quantidade", color="smoke", barmode="group")
+    st.plotly_chart(fig_smoke, use_container_width=True)
+    with st.expander("💡 Ver insight"):
+        st.markdown("Tabagismo aparece em todos os níveis.Mais comum em obesidade avançada.")
+
+
+# Obesidade por faixa etária com anotação
+st.markdown("## 📊 Obesidade por Faixa Etária")
+col14, col15 = st.columns([2.5, 1])
+with col14:
+    faixa_ob = df_renomeado.groupby(["faixa_personalizada", "obesity"]).size().reset_index(name="quantidade")
+
+    # identificar faixa com mais registros totais
+    total_faixa = faixa_ob.groupby("faixa_personalizada")["quantidade"].sum().reset_index()
+    faixa_pico = total_faixa.loc[total_faixa["quantidade"].idxmax()]
+
+    fig_ob_faixa = px.bar(faixa_ob, x="faixa_personalizada", y="quantidade", color="obesity", barmode="stack",
+                          title="Obesidade por Faixa Etária com Anotação de Pico")
+
+    fig_ob_faixa.add_annotation(
+        x=faixa_pico["faixa_personalizada"],
+        y=faixa_pico["quantidade"],
+        text="📌 Faixa com mais casos",
+        showarrow=True,
+        arrowhead=2,
+        ay=-40,
+        font=dict(size=11, color="red"),
+        bgcolor="white",
+        bordercolor="red"
+    )
+    st.plotly_chart(fig_ob_faixa, use_container_width=True)
+    with st.expander("💡 Ver insight"):
+        st.markdown("Faixas de 19 a 50 anos concentram a maior parte dos casos.")
+
+
 
 # Histórico Familiar vs Obesidade
 st.markdown("## 🧬 Obesidade por Histórico Familiar")
 col_fam1, col_fam2 = st.columns([2.2, 1])
 with col_fam1:
-    hist_fam = df.groupby(["family_history", "obesity"]).size().reset_index(name="quantidade")
+    hist_fam = df_renomeado.groupby(["family_history", "obesity"]).size().reset_index(name="quantidade")
     hist_fam["family_history_pt"] = hist_fam["family_history"].map({"yes": "Sim", "no": "Não"})
-    hist_fam["obesidade_pt"] = hist_fam["obesity"].map(translate_obesity)
+    hist_fam["obesidade_pt"] = hist_fam["obesity"].map({
+        "Insufficient_Weight": "Peso Insuficiente",
+        "Normal_Weight": "Peso Normal",
+        "Overweight_Level_I": "Sobrepeso I",
+        "Overweight_Level_II": "Sobrepeso II",
+        "Obesity_Type_I": "Obesidade I",
+        "Obesity_Type_II": "Obesidade II",
+        "Obesity_Type_III": "Obesidade III"
+    })
 
     fig_fam = px.bar(hist_fam, x="family_history_pt", y="quantidade", color="obesidade_pt", barmode="group",
                      title="Obesidade por Histórico Familiar")
@@ -116,112 +187,13 @@ with col_fam2:
     st.markdown("### 💡")
     st.markdown("<div style='font-size:15px; font-weight:bold'>Indivíduos com histórico familiar têm maior incidência de obesidade grave.</div>", unsafe_allow_html=True)
 
-# Alimentação
-st.markdown("## 🍽️ Alimentação e Hidratação por Obesidade")
-col6, col7 = st.columns([2, 1])
-with col6:
-    alim = df_filt.groupby("obesity")[["ncp", "ch2o"]].mean().reset_index()
-    fig_alim = px.bar(alim, x="obesity", y=["ncp", "ch2o"], barmode="group")
-    st.plotly_chart(fig_alim, use_container_width=True)
-with col7:
-    st.markdown("### 💡")
-    st.markdown("<div style='font-size:16px; font-weight:bold'>Pessoas com peso normal fazem mais refeições e bebem mais água.<br>Reflete hábitos saudáveis.</div>", unsafe_allow_html=True)
-
-# Atividade física por obesidade
-st.markdown("## 🏃 Atividade Física por Obesidade")
-col8, col9 = st.columns([2, 1])
-with col8:
-    atividade = df_filt.groupby("obesity")["faf"].mean().reset_index()
-    fig_faf = px.bar(atividade, x="obesity", y="faf", color="obesity")
-    st.plotly_chart(fig_faf, use_container_width=True)
-with col9:
-    st.markdown("### 💡")
-    st.markdown("<div style='font-size:16px; font-weight:bold'>Pessoas obesas são menos ativas fisicamente.<br>Reflete relação inversa entre exercício e obesidade.</div>", unsafe_allow_html=True)
-
-# Sedentarismo
-st.markdown("## 🛋️ Sedentarismo por Obesidade")
-col10, col11 = st.columns([2, 1])
-with col10:
-    sedentarismo = df_filt.groupby(["obesity", "sedentario"]).size().reset_index(name="quantidade")
-    fig_sed = px.bar(sedentarismo, x="obesity", y="quantidade", color="sedentario", barmode="group")
-    st.plotly_chart(fig_sed, use_container_width=True)
-with col11:
-    st.markdown("### 💡")
-    st.markdown("<div style='font-size:16px; font-weight:bold'>Obesidade tipo I e II concentram maior sedentarismo.</div>", unsafe_allow_html=True)
-
-# Fumantes
-st.markdown("## 🚬 Fumantes por Obesidade")
-col12, col13 = st.columns([2, 1])
-with col12:
-    fumantes = df_filt.groupby(["obesity", "smoke"]).size().reset_index(name="quantidade")
-    fig_smoke = px.bar(fumantes, x="obesity", y="quantidade", color="smoke", barmode="group")
-    st.plotly_chart(fig_smoke, use_container_width=True)
-with col13:
-    st.markdown("### 💡")
-    st.markdown("<div style='font-size:16px; font-weight:bold'>Tabagismo aparece em todos os níveis.<br>Mais comum em obesidade avançada.</div>", unsafe_allow_html=True)
-
-
-# Obesidade por faixa etária com anotação
-st.markdown("## 📊 Obesidade por Faixa Etária")
-col14, col15 = st.columns([2.5, 1])
-with col14:
-    faixa_ob = df.groupby(["faixa_personalizada", "obesity"]).size().reset_index(name="quantidade")
-
-    # identificar faixa com mais registros totais
-    total_faixa = faixa_ob.groupby("faixa_personalizada")["quantidade"].sum().reset_index()
-    faixa_pico = total_faixa.loc[total_faixa["quantidade"].idxmax()]
-
-    fig_ob_faixa = px.bar(faixa_ob, x="faixa_personalizada", y="quantidade", color="obesity", barmode="stack",
-                          title="Obesidade por Faixa Etária com Anotação de Pico")
-
-    fig_ob_faixa.add_annotation(
-        x=faixa_pico["faixa_personalizada"],
-        y=faixa_pico["quantidade"],
-        text="📌 Faixa com mais casos",
-        showarrow=True,
-        arrowhead=2,
-        ay=-40,
-        font=dict(size=11, color="red"),
-        bgcolor="white",
-        bordercolor="red"
-    )
-    st.plotly_chart(fig_ob_faixa, use_container_width=True)
-with col15:
-    st.markdown("### 💡")
-    st.markdown("<div style='font-size:14px; font-weight:600'>Faixas de 19 a 50 anos concentram a maior parte dos casos.</div>", unsafe_allow_html=True)
-
-# Traduzir os nomes das variáveis
-rename_cols = {
-    "age": "Idade",
-    "height": "Altura (m)",
-    "weight": "Peso (kg)",
-    "ncp": "Refeições/dia",
-    "ch2o": "Água/dia",
-    "faf": "Atividade Física",
-    "tue": "Tempo em Tela"
-}
-
-df_corr = df.rename(columns=rename_cols)
-correlacao_pt = df_corr[list(rename_cols.values())].corr().round(2)
 
 # 🔗 Correlação entre Fatores de Saúde e Comportamento
 st.markdown("## 🧪 Correlação entre Fatores")
+
 col_corr1, col_corr2 = st.columns([2, 1])
-
 with col_corr1:
-    fig_corr = px.imshow(
-        correlacao_pt,
-        text_auto=True,
-        color_continuous_scale='RdBu',
-        title="Relação Entre Fatores de Saúde e Comportamento",
-        aspect="auto"
-    )
-    fig_corr.update_layout(
-        margin=dict(l=0, r=0, t=50, b=0),
-        coloraxis_colorbar=dict(title="Correlação")
-    )
-    st.plotly_chart(fig_corr, use_container_width=True)
-
+    st.image("grafico_correlacao_legivel_pt.png", use_column_width=True)
 with col_corr2:
     st.markdown("### 💡")
     st.markdown("""
@@ -237,3 +209,4 @@ with col_corr2:
 # Tabela final
 st.markdown("## 📋 Tabela de Dados Filtrados")
 st.dataframe(df_filt)
+
