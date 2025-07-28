@@ -204,7 +204,7 @@ with col_fam1:
     )
     st.plotly_chart(fig_fam, use_container_width=True)
     with st.expander("💡 Ver insight"):
-    st.markdown("Indivíduos com histórico familiar têm maior incidência de obesidade grave.)
+    st.markdown("Indivíduos com histórico familiar têm maior incidência de obesidade grave.")
 
 
 # 🔗 Correlação entre Fatores de Saúde e Comportamento
@@ -238,16 +238,12 @@ fig_corr.update_layout(
 )
 st.plotly_chart(fig_corr, use_container_width=True)
 
-with col_corr2:
-    st.markdown("### 💡")
-    st.markdown("""
-    <div style='font-size:14px; font-weight:bold'>
+with st.expander("💡 Ver insight"):
+  st.markdown("
     - Pessoas mais altas tendem a pesar mais.<br>
     - Exercício físico se relaciona com maior consumo de água.<br>
     - Idade está ligada à redução do tempo em tecnologia.<br>
-    - Obesidade é multifatorial: combinação de hábitos importa mais que um único fator.
-    </div>
-    """, unsafe_allow_html=True)
+    - Obesidade é multifatorial:combinação de hábitos importa mais que um único fator.")
 
 
 # Tabela final
