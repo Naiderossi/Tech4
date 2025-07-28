@@ -186,7 +186,7 @@ with col_fam1:
         "Obesity_Type_II": "Obesidade II",
         "Obesity_Type_III": "Obesidade III"
     })
-  fig_fam = px.bar(
+fig_fam = px.bar(
     hist_fam,
     x="family_history_pt",
     y="quantidade",
@@ -204,7 +204,6 @@ with col_fam1:
     text="quantidade",
     title="Distribuição de Obesidade por Histórico Familiar"
 )
-
 fig_fam.update_layout(
     xaxis_title="Histórico Familiar",
     yaxis_title="Quantidade",
@@ -213,10 +212,8 @@ fig_fam.update_layout(
     plot_bgcolor="#fafafa"
 )
 fig_fam.update_traces(textposition="outside")
-
-    fig_fam = px.bar(hist_fam, x="family_history_pt", y="quantidade", color="obesidade_pt", barmode="group",
+fig_fam = px.bar(hist_fam, x="family_history_pt", y="quantidade", color="obesidade_pt", barmode="group",
                      title="Obesidade por Histórico Familiar")
-
     grupo_pico = hist_fam.loc[hist_fam["quantidade"].idxmax()]
     fig_fam.add_annotation(
         x=grupo_pico["family_history_pt"],
